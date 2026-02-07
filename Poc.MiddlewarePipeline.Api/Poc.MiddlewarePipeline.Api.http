@@ -1,0 +1,33 @@
+### =========================================
+### Middleware Pipeline PoC
+### =========================================
+
+@baseUrl = http://localhost:5053
+
+### -----------------------------------------
+### 1) Normal request
+### - Correlation ID is generated
+### - Timing header is present
+### -----------------------------------------
+GET {{baseUrl}}/ok
+Accept: application/json
+
+
+### -----------------------------------------
+### 2) Provide your own Correlation ID
+### - Middleware should reuse it
+### -----------------------------------------
+GET {{baseUrl}}/ok
+Accept: application/json
+X-Correlation-Id: demo-correlation-123
+
+
+### -----------------------------------------
+### 3) Exception flow
+### - Exception middleware catches error
+### - ProblemDetails JSON returned
+### - Correlation ID present
+### - Timing still logged
+### -----------------------------------------
+GET {{baseUrl}}/boom
+Accept: application/json
