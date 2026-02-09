@@ -10,4 +10,9 @@
       <ProjectReference Include="..\Orders.Application\Orders.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
+    </ItemGroup>
+
 </Project>
