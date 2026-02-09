@@ -4,6 +4,7 @@ using Orders.Application.Mediator;
 using Orders.Application.Orders.Abstractions;
 using Orders.Application.Orders.CreateOrder;
 using Orders.Application.Orders.GetOrder;
+using Microsoft.EntityFrameworkCore;
 using Orders.Infrastructure.Persistence;
 using Poc.CqrsMediator.Api.Contracts;
 
@@ -12,21 +13,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- DI: Core CQRS plumbing ---
-builder.Services.AddSingleton<IMediator, Mediator>();
+builder.Services.AddScoped<IMediator, Mediator>();
 
-// Repo (in-memory for PoC #2)
-builder.Services.AddSingleton<IOrderRepository, InMemoryOrderRepository>();
+builder.Services.AddDbContext<OrdersDbContext>(options =>
+{
+    options.UseSqlite("Data Source=orders.db");
+});
 
-// Handlers (explicit for this PoC)
+builder.Services.AddScoped<IOrderRepository, EfOrderRepository>();
+
 builder.Services.AddTransient<IHandler<CreateOrderCommand, Guid>, CreateOrderHandler>();
 builder.Services.AddTransient<IHandler<GetOrderQuery, Orders.Application.Orders.Dtos.OrderDto?>, GetOrderHandler>();
 
-// Behaviors (Decorator chain; order matters: first registered = outermost)
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-// Validators
 builder.Services.AddTransient<IValidator<CreateOrderCommand>, CreateOrderValidator>();
 
 var app = builder.Build();
