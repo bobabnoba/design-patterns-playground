@@ -24,9 +24,8 @@ public sealed class EfOrderRepository(OrdersDbContext db) : IOrderRepository
 
         db.Orders.Add(entity);
 
-        // TODO: move SaveChanges into TransactionBehavior
-        await db.SaveChangesAsync(ct);
     }
+
 
     public async Task<Order?> Get(Guid id, CancellationToken ct)
     {
