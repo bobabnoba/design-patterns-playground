@@ -6,6 +6,7 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options) :
 {
     public DbSet<OrderEntity> Orders => Set<OrderEntity>();
     public DbSet<OrderItemEntity> OrderItems => Set<OrderItemEntity>();
+    public DbSet<OutboxMessageEntity> OutboxMessages => Set<OutboxMessageEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,5 +38,26 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options) :
             b.Property(i => i.UnitPrice)
                 .HasPrecision(18, 2);
         });
+        
+        modelBuilder.Entity<OutboxMessageEntity>(b =>
+        {
+            b.HasKey(x => x.Id);
+
+            b.Property(x => x.Type)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            b.Property(x => x.Payload)
+                .IsRequired();
+
+            b.Property(x => x.OccurredAtUtc)
+                .IsRequired();
+
+            b.Property(x => x.Attempts)
+                .IsRequired();
+
+            b.HasIndex(x => x.ProcessedAtUtc);
+        });
+
     }
 }

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Orders.Application.Abstractions;
 using Orders.Infrastructure.Persistence;
 using Poc.CqrsMediator.Api.Contracts;
+using Orders.Application.Outbox;
+using Poc.CqrsMediator.Api.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,7 @@ builder.Services.AddDbContext<OrdersDbContext>(options =>
 
 builder.Services.AddScoped<IOrderRepository, EfOrderRepository>();
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+builder.Services.AddScoped<IOutbox, EfOutbox>();
 
 builder.Services.AddTransient<IHandler<CreateOrderCommand, Guid>, CreateOrderHandler>();
 builder.Services.AddTransient<IHandler<GetOrderQuery, Orders.Application.Orders.Dtos.OrderDto?>, GetOrderHandler>();
@@ -34,6 +37,8 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBe
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddTransient<IValidator<CreateOrderCommand>, CreateOrderValidator>();
+
+builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 var app = builder.Build();
 
