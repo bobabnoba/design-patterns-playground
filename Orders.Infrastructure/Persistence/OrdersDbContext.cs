@@ -43,20 +43,17 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options) :
         {
             b.HasKey(x => x.Id);
 
-            b.Property(x => x.Type)
-                .IsRequired()
-                .HasMaxLength(200);
+            b.Property(x => x.Type).IsRequired().HasMaxLength(200);
+            b.Property(x => x.Payload).IsRequired();
+            b.Property(x => x.OccurredAtUtc).IsRequired();
 
-            b.Property(x => x.Payload)
-                .IsRequired();
+            b.Property(x => x.Attempts).IsRequired();
 
-            b.Property(x => x.OccurredAtUtc)
-                .IsRequired();
-
-            b.Property(x => x.Attempts)
-                .IsRequired();
+            b.Property(x => x.LockedBy).HasMaxLength(200);
 
             b.HasIndex(x => x.ProcessedAtUtc);
+            b.HasIndex(x => x.LockedUntilUtc);
+            b.HasIndex(x => x.NextAttemptAtUtc);
         });
 
     }

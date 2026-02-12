@@ -77,6 +77,16 @@ namespace Orders.Infrastructure.Migrations
                     b.Property<string>("LastError")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("LockedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LockedUntilUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("NextAttemptAtUtc")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("OccurredAtUtc")
                         .HasColumnType("TEXT");
 
@@ -93,6 +103,10 @@ namespace Orders.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LockedUntilUtc");
+
+                    b.HasIndex("NextAttemptAtUtc");
 
                     b.HasIndex("ProcessedAtUtc");
 

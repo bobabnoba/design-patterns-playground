@@ -38,6 +38,7 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddTransient<IValidator<CreateOrderCommand>, CreateOrderValidator>();
 
+builder.Services.Configure<OutboxOptions>(builder.Configuration.GetSection("Outbox"));
 builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 var app = builder.Build();
