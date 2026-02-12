@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Orders.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Orders.Infrastructure.Persistence;
 namespace Orders.Infrastructure.Migrations
 {
     [DbContext(typeof(OrdersDbContext))]
-    partial class OrdersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260212203953_AddOutbox")]
+    partial class AddOutbox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
@@ -77,16 +80,6 @@ namespace Orders.Infrastructure.Migrations
                     b.Property<string>("LastError")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("LockedBy")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("LockedUntilUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("NextAttemptAtUtc")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("OccurredAtUtc")
                         .HasColumnType("TEXT");
 
@@ -103,10 +96,6 @@ namespace Orders.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LockedUntilUtc");
-
-                    b.HasIndex("NextAttemptAtUtc");
 
                     b.HasIndex("ProcessedAtUtc");
 

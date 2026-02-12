@@ -1,10 +1,12 @@
+using System.Text.Json;
 using Orders.Application.Mediator;
 using Orders.Application.Orders.Abstractions;
+using Orders.Application.Outbox;
 using Orders.Domain.Orders;
 
 namespace Orders.Application.Orders.CreateOrder;
 
-public sealed class CreateOrderHandler(IOrderRepository repo)
+public sealed class CreateOrderHandler(IOrderRepository repo, IOutbox outbox)
     : IHandler<CreateOrderCommand, Guid>
 {
     public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken ct)
@@ -18,6 +20,18 @@ public sealed class CreateOrderHandler(IOrderRepository repo)
         var order = new Order(id, request.CustomerId, items);
 
         await repo.Add(order, ct);
+        
+        var evt = new 
+        {
+            orderId = id,
+            customerId = request.CustomerId,
+            total = order.Total
+        };
+
+        outbox.Enqueue(
+            type: "OrderPlaced",
+            payloadJson: JsonSerializer.Serialize(evt)
+        );
 
         return id;
     }
