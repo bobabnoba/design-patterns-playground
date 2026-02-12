@@ -5,6 +5,7 @@ using Orders.Application.Orders.Abstractions;
 using Orders.Application.Orders.CreateOrder;
 using Orders.Application.Orders.GetOrder;
 using Microsoft.EntityFrameworkCore;
+using Orders.Application.Abstractions;
 using Orders.Infrastructure.Persistence;
 using Poc.CqrsMediator.Api.Contracts;
 
@@ -17,15 +18,19 @@ builder.Services.AddScoped<IMediator, Mediator>();
 
 builder.Services.AddDbContext<OrdersDbContext>(options =>
 {
-    options.UseSqlite("Data Source=orders.db");
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("OrdersDb")
+    );
 });
 
 builder.Services.AddScoped<IOrderRepository, EfOrderRepository>();
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
 builder.Services.AddTransient<IHandler<CreateOrderCommand, Guid>, CreateOrderHandler>();
 builder.Services.AddTransient<IHandler<GetOrderQuery, Orders.Application.Orders.Dtos.OrderDto?>, GetOrderHandler>();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddTransient<IValidator<CreateOrderCommand>, CreateOrderValidator>();
@@ -59,7 +64,6 @@ app.Use(async (ctx, next) =>
     }
 });
 
-// --- Endpoints ---
 app.MapPost("/orders", async (CreateOrderRequest req, IMediator mediator, CancellationToken ct) =>
 {
     var cmd = new CreateOrderCommand(
